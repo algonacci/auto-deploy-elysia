@@ -24,16 +24,13 @@ jobs:
             git pull origin main
             git status
 
-            # Ensure NVM is loaded
-            export NVM_DIR="$HOME/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+            # Ensure Bun is installed and up to date
+            curl -fsSL https://bun.sh/install | bash
+            source ~/.bashrc
+            bun upgrade
 
-            # Use the correct Node.js version
-            nvm use 20.15.1
-
-            # Create symlinks if they don't exist
-            sudo ln -sf "$(which node)" "/usr/local/bin/node"
-            sudo ln -sf "$(which npm)" "/usr/local/bin/npm"
+            # Install dependencies
+            bun install
 
             # Install PM2 globally if not already installed
             npm list -g | grep pm2 || npm install -g pm2
@@ -41,6 +38,19 @@ jobs:
             # Create PM2 symlink
             sudo ln -sf "$(which pm2)" "/usr/local/bin/pm2"
 
+            # Build the application (if necessary)
+            # bun run build
+
             # Reload and restart your application
-            pm2 reload AutoDeployElysia
-            pm2 restart AutoDeployElysia
+            pm2 reload AutoDeployElysia || pm2 start --interpreter ~/.bun/bin/bun src/index.ts --name AutoDeployElysia
+            pm2 save
+
+            echo "Current directory: $(pwd)"
+            echo "Bun version: $(bun --version)"
+            echo "PM2 version: $(pm2 -v)"
+            echo "Application files:"
+            ls -la
+            echo "PM2 processes:"
+            pm2 list
+            echo "PM2 logs for AutoDeployElysia:"
+            pm2 logs AutoDeployElysia --lines 50
