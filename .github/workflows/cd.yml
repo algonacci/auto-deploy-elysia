@@ -62,5 +62,3 @@ jobs:
             ls -la
             echo "PM2 processes:"
             pm2 list
-            echo "PM2 logs for AutoDeployElysia:"
-            pm2 logs AutoDeployElysia --lines 50
