@@ -4,7 +4,7 @@ const app = new Elysia()
   .get("/", () => {
     return {
       status: {
-        message: "Success fetching from Elysia",
+        message: "Success fetching from Elysia!",
         code: 200,
       },
       data: null
