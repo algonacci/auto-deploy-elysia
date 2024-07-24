@@ -21,28 +21,38 @@ jobs:
           port: 22
           script: |
             cd auto-deploy-elysia
+
+            # Stash local changes
+            git stash
+
+            # Pull latest changes
             git pull origin main
+
+            # Pop stashed changes (optional, remove if you want to discard local changes)
+            git stash pop
+
             git status
 
             # Ensure Bun is installed and up to date
             curl -fsSL https://bun.sh/install | bash
             source ~/.bashrc
-            bun upgrade
+            export BUN_INSTALL="$HOME/.bun"
+            export PATH="$BUN_INSTALL/bin:$PATH"
+
+            # Verify Bun installation
+            bun --version
 
             # Install dependencies
             bun install
 
+            # Ensure npm global bin is in PATH
+            export PATH="$PATH:$(npm config get prefix)/bin"
+
             # Install PM2 globally if not already installed
             npm list -g | grep pm2 || npm install -g pm2
 
-            # Create PM2 symlink
-            sudo ln -sf "$(which pm2)" "/usr/local/bin/pm2"
-
-            # Build the application (if necessary)
-            # bun run build
-
             # Reload and restart your application
-            pm2 reload AutoDeployElysia || pm2 start --interpreter ~/.bun/bin/bun src/index.ts --name AutoDeployElysia
+            pm2 reload AutoDeployElysia || pm2 start --interpreter $HOME/.bun/bin/bun src/index.ts --name AutoDeployElysia
             pm2 save
 
             echo "Current directory: $(pwd)"
