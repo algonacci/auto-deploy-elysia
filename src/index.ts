@@ -7,10 +7,10 @@ const app = new Elysia()
         message: "Hello World from Elysia!",
         code: 200,
       },
-      data: null
-    }
+      data: null,
+    };
   })
-  .listen(3000);
+  .listen(7003);
 
 console.log(
   `🦊 Elysia is running at http://${app.server?.hostname}:${app.server?.port}`
